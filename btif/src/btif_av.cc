@@ -3769,7 +3769,6 @@ static void btif_av_handle_event(uint16_t event, char* p_param) {
       if (index == btif_max_av_clients) {
         //Device is disconnected before setting it as active device
         BTIF_TRACE_IMP("%s:Invalid index to set active device",__func__);
-        btif_av_signal_session_ready();
         break;
       }
 

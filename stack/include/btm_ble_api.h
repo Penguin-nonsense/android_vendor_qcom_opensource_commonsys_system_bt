@@ -169,7 +169,8 @@ extern void BTM_BleReadScanReports(tBLE_SCAN_MODE scan_mode,
 
 /* This function is called to setup the callback for tracking */
 extern void BTM_BleTrackAdvertiser(tBTM_BLE_TRACK_ADV_CBACK* p_track_cback,
-                                   tBTM_BLE_REF_VALUE ref_value);
+                                   tBTM_BLE_REF_VALUE ref_value,
+                                   uint8_t filt_index);
 
 /*******************************************************************************
  *

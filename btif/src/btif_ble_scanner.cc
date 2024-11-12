@@ -269,7 +269,7 @@ class BleScannerInterfaceImpl : public BleScannerInterface {
     if (filt_param && filt_param->dely_mode == 1) {
       do_in_bta_thread(
           FROM_HERE, base::Bind(BTM_BleTrackAdvertiser, bta_track_adv_event_cb,
-                                client_if));
+                                client_if, filt_index));
     }
 
     do_in_bta_thread(FROM_HERE,

@@ -29,12 +29,12 @@
 #include "hcidefs.h"
 #include "hcimsgs.h"
 
-#include <string.h>
-#include <algorithm>
-#include <vector>
-
 #include <base/bind.h>
 #include <base/bind_helpers.h>
+#include <string.h>
+#include <algorithm>
+#include <unordered_map>
+#include <vector>
 
 using base::Bind;
 using bluetooth::Uuid;
@@ -57,7 +57,7 @@ using bluetooth::Uuid;
 
 tBTM_BLE_ADV_FILTER_CB btm_ble_adv_filt_cb;
 tBTM_BLE_VSC_CB cmn_ble_vsc_cb;
-
+extern std::unordered_map<uint8_t, uint8_t> tracker_id_map_;
 static uint8_t btm_ble_cs_update_pf_counter(tBTM_BLE_SCAN_COND_OP action,
                                             uint8_t cond_type,
                                             tBLE_BD_ADDR* p_bd_addr,
@@ -998,6 +998,12 @@ void BTM_BleAdvFilterParamSetup(
     /* Filter index */
     UINT8_TO_STREAM(p, filt_index);
 
+    if (tracker_id_map_.find(filt_index) != tracker_id_map_.end()) {
+      BTM_TRACE_EVENT(
+          "Advertisement track for filter_index %d is found, erasing",
+          filt_index);
+      tracker_id_map_.erase(filt_index);
+    }
     btu_hcif_send_cmd_with_cb(
         FROM_HERE, HCI_BLE_ADV_FILTER_OCF, param,
         (uint8_t)(BTM_BLE_ADV_FILT_META_HDR_LENGTH),

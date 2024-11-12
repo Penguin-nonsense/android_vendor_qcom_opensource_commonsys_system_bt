@@ -331,6 +331,7 @@ void bta_hf_client_resume_open(tBTA_HF_CLIENT_CB* client_cb) {
     client_cb->state = BTA_HF_CLIENT_OPENING_ST;
     tBTA_HF_CLIENT_DATA msg;
     msg.hdr.layer_specific = client_cb->handle;
+    msg.api_open.bd_addr = client_cb->peer_addr;
     bta_hf_client_start_open(&msg);
   }
 }

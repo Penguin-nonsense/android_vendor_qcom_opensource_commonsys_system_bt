@@ -100,6 +100,10 @@ void bta_hf_client_start_open(tBTA_HF_CLIENT_DATA* p_data) {
   if (client_cb == NULL) {
     APPL_TRACE_ERROR("%s: wrong handle to control block %d", __func__,
                      p_data->hdr.layer_specific);
+    tBTA_HF_CLIENT evt;
+    memset(&evt, 0, sizeof(evt));
+    evt.bd_addr = p_data->api_open.bd_addr;
+    bta_hf_client_app_callback(BTA_HF_CLIENT_CLOSE_EVT, &evt);
     return;
   }
 

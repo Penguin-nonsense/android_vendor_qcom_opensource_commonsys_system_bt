@@ -2432,6 +2432,11 @@ static void btif_dm_upstreams_evt(uint16_t event, char* p_param) {
         bond_state_changed(BT_STATUS_FAIL, pairing_cb.bd_addr, BT_BOND_STATE_NONE);
       }
 #endif
+      if (pairing_cb.bd_addr == bd_addr && pairing_cb.state == BT_BOND_STATE_BONDING) {
+        BTIF_TRACE_DEBUG("Clear pairing callback state for %s", bd_addr.ToString().c_str());
+        bond_state_changed(BT_STATUS_FAIL, pairing_cb.bd_addr, BT_BOND_STATE_NONE);
+      }
+
       if (num_active_le_links > 0 &&
           p_data->link_down.link_type == BT_TRANSPORT_LE) {
         num_active_le_links--;

@@ -494,7 +494,8 @@ void ConfigureBqr(const BqrConfiguration& bqr_config) {
     return;
   }
 
-  if(bqr_config.is_qc_bqr5_supported == false) {
+  if(bqr_config.is_qc_bqr5_supported == false || vendor_cap_supported_version
+        < kBqrConnectFailVersion) {
     uint8_t param[sizeof(BqrConfiguration)];
     uint8_t* p_param = param;
     UINT8_TO_STREAM(p_param, bqr_config.report_action);

@@ -22,6 +22,7 @@
 #include <vector>
 #include "bt_target.h"
 
+#include <unordered_map>
 #include "bt_types.h"
 #include "bt_utils.h"
 #include "btm_ble_api.h"
@@ -37,6 +38,7 @@ using hci_cmd_cb = base::Callback<void(uint8_t* /* return_parameters */,
 
 tBTM_BLE_BATCH_SCAN_CB ble_batchscan_cb;
 tBTM_BLE_ADV_TRACK_CB ble_advtrack_cb;
+std::unordered_map<uint8_t, uint8_t> tracker_id_map_;
 
 /* length of each batch scan command */
 #define BTM_BLE_BATCH_SCAN_STORAGE_CFG_LEN 4
@@ -81,7 +83,6 @@ void btm_ble_batchscan_filter_track_adv_vse_cback(uint8_t len, uint8_t* p) {
 
     memset(&adv_data, 0, sizeof(tBTM_BLE_TRACK_ADV_DATA));
     BTM_BleGetVendorCapabilities(&cmn_ble_vsc_cb);
-    adv_data.client_if = (uint8_t)ble_advtrack_cb.ref_value;
     if (cmn_ble_vsc_cb.version_supported > BTM_VSC_CHIP_CAPABILITY_L_VERSION) {
       STREAM_TO_UINT8(adv_data.filt_index, p);
       STREAM_TO_UINT8(adv_data.advertiser_state, p);
@@ -119,16 +120,24 @@ void btm_ble_batchscan_filter_track_adv_vse_cback(uint8_t len, uint8_t* p) {
       STREAM_TO_UINT8(adv_data.advertiser_state, p);
     }
 
-    BTM_TRACE_EVENT("track_adv_vse_cback called: %d, %d, %d",
-                    adv_data.filt_index, adv_data.addr_type,
-                    adv_data.advertiser_state);
-
     // Make sure the device is known
     BTM_SecAddBleDevice(adv_data.bd_addr, NULL, BT_DEVICE_TYPE_BLE,
                         adv_data.addr_type);
 
-    ble_advtrack_cb.p_track_cback(&adv_data);
-    return;
+    if (tracker_id_map_.find(adv_data.filt_index) == tracker_id_map_.end()) {
+      BTM_TRACE_EVENT("Advertisement track for filter_index %d is not register",
+                      adv_data.filt_index);
+      return;
+    } else {
+      adv_data.client_if = tracker_id_map_[adv_data.filt_index];
+      BTM_TRACE_EVENT(
+          "track_adv_vse_cback called: fltr_indx:%d client_if:%d addr_type:%d "
+          "adv_state:%d",
+          adv_data.filt_index, adv_data.client_if, adv_data.addr_type,
+          adv_data.advertiser_state);
+      ble_advtrack_cb.p_track_cback(&adv_data);
+      return;
+    }
   }
 }
 
@@ -519,7 +528,7 @@ void BTM_BleReadScanReports(tBTM_BLE_BATCH_SCAN_MODE scan_mode,
 
 /* This function is called to setup the callback for tracking */
 void BTM_BleTrackAdvertiser(tBTM_BLE_TRACK_ADV_CBACK* p_track_cback,
-                            tBTM_BLE_REF_VALUE ref_value) {
+                            tBTM_BLE_REF_VALUE ref_value, uint8_t filt_index) {
   BTM_TRACE_EVENT("%s:", __func__);
 
   if (!can_do_batch_scan()) {
@@ -533,6 +542,9 @@ void BTM_BleTrackAdvertiser(tBTM_BLE_TRACK_ADV_CBACK* p_track_cback,
     p_track_cback(&track_adv_data);
     return;
   }
+
+  tracker_id_map_[filt_index] = (uint8_t)ref_value;
+  BTM_TRACE_EVENT("filter_index: %d, client_if: %d", filt_index, ref_value);
 
   ble_advtrack_cb.p_track_cback = p_track_cback;
   ble_advtrack_cb.ref_value = ref_value;
