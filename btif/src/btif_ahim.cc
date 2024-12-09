@@ -118,7 +118,8 @@ bool src_metadata_wait;
 std::mutex snk_metadata_wait_mutex_;
 std::condition_variable snk_metadata_wait_cv;
 bool snk_metadata_wait;
-
+bool is_split_sink_enabled;
+bool is_split_sink_hidl_checked;
 
 #if AHIM_ENABLED
 
@@ -377,7 +378,20 @@ bool btif_ahim_is_qc_lea_enabled() {
 }
 
 bool btif_ahim_is_aosp_aidl_hal_enabled() {
-  return bluetooth::audio::aidl::a2dp::is_aidl_hal_available();
+  if (!is_split_sink_hidl_checked) {
+    char a2dp_role[255] = "false";
+    osi_property_get("persist.vendor.service.bt.a2dp.sink", a2dp_role, "false");
+    if (!strncmp("true", a2dp_role, 4)) {
+      is_split_sink_enabled = true;
+    }
+    is_split_sink_hidl_checked = true;
+  }
+  if(is_split_sink_enabled) {
+    BTIF_TRACE_ERROR("Disabling aidl as splitsink is enabled");
+    return false;
+  } else {
+    return bluetooth::audio::aidl::a2dp::is_aidl_hal_available();
+  }
 }
 
 bool btif_ahim_is_hal_2_0_enabled() {

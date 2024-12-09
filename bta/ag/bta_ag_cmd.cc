@@ -1322,6 +1322,15 @@ void bta_ag_at_hfp_cback(tBTA_AG_SCB* p_scb, uint16_t cmd, uint8_t arg_type,
       /* store peer features */
       p_scb->peer_features = (uint16_t)int_arg;
 
+      bool is_allowlisted_1_7 =
+           interop_match_addr_or_name(INTEROP_HFP_1_7_BLACKLIST, &p_scb->peer_addr);
+      if (p_scb->peer_version == HFP_VERSION_1_1) {
+          if (is_allowlisted_1_7) {
+              APPL_TRACE_DEBUG("%s: HFP version set to 1.7", __func__);
+              p_scb->peer_version = HFP_VERSION_1_7;
+          }
+      }
+
       // set in-band setting if enabled
       p_scb->inband_enabled = p_scb->features & BTA_AG_FEAT_INBAND;
 
