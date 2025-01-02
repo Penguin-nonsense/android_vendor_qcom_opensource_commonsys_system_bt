@@ -4057,7 +4057,7 @@ static void btif_dm_ble_auth_cmpl_evt(tBTA_DM_AUTH_CMPL* p_auth_cmpl) {
         break;
 
       case BTA_DM_AUTH_SMP_CONN_TOUT: {
-        if (btm_sec_is_a_bonded_dev(bd_addr)) {
+        if (btif_storage_is_device_bonded(&bd_addr)) {
           uint8_t dev_type;
           uint8_t addr_type;
           BTM_ReadDevInfo(bd_addr, &dev_type, &addr_type);
@@ -4065,12 +4065,12 @@ static void btif_dm_ble_auth_cmpl_evt(tBTA_DM_AUTH_CMPL* p_auth_cmpl) {
           if ((pairing_cb.state == BT_BOND_STATE_BONDING) &&
             (dev_type == BT_DEVICE_TYPE_DUMO) &&
             (addr_type == BLE_ADDR_PUBLIC) &&
-            !btm_sec_is_a_bonded_dev_by_transport(bd_addr, BT_TRANSPORT_LE)) {
+            !btif_config_exist(bd_addr.ToString().c_str(), "LE_KEY_PENC")) {
             btif_storage_remove_bonded_device(&bd_addr);
             status = BT_STATUS_AUTH_FAILURE;
             break;
           } else if ((pairing_cb.state == BT_BOND_STATE_BONDING) &&
-            btm_sec_is_a_bonded_dev_by_transport(bd_addr, BT_TRANSPORT_LE)) {
+            btif_config_exist(bd_addr.ToString().c_str(), "LE_KEY_PENC")) {
             btif_storage_remove_bonded_device(&bd_addr);
             status = BT_STATUS_AUTH_FAILURE;
             break;

@@ -203,16 +203,20 @@ void gatt_init(void) {
 
   L2CA_RegisterFixedChannel(L2CAP_ATT_CID, &fixed_reg);
 
+  gatt_cb.over_br_enabled =
+      osi_property_get_bool("persist.vendor.bluetooth.gatt.over_bredr.enabled", true);
   /* Now, register with L2CAP for ATT PSM over BR/EDR */
-  if (!L2CA_Register(BT_PSM_ATT, (tL2CAP_APPL_INFO*)&dyn_info,
-                     false /* enable_snoop */)) {
-    LOG(ERROR) << "ATT Dynamic Registration failed";
+  if (gatt_cb.over_br_enabled) {
+    if (!L2CA_Register(BT_PSM_ATT, (tL2CAP_APPL_INFO*)&dyn_info,
+                       false /* enable_snoop */)) {
+      LOG(ERROR) << "ATT Dynamic Registration failed";
+    }
   }
 
   BTM_SetSecurityLevel(true, "", BTM_SEC_SERVICE_ATT, BTM_SEC_NONE, BT_PSM_ATT,
-                       0, 0);
+                         0, 0);
   BTM_SetSecurityLevel(false, "", BTM_SEC_SERVICE_ATT, BTM_SEC_NONE, BT_PSM_ATT,
-                       0, 0);
+                         0, 0);
 
   if (gatt_cb.eatt_enabled) {
     /* Register with L2CAP for EATT PSM */
@@ -222,7 +226,7 @@ void gatt_init(void) {
     }
 
     BTM_SetSecurityLevel(true, "", BTM_SEC_SERVICE_EATT, BTM_SEC_OUT_ENCRYPT, BT_PSM_EATT,
-                           0, 0);
+                         0, 0);
     BTM_SetSecurityLevel(false, "", BTM_SEC_SERVICE_EATT, BTM_SEC_IN_ENCRYPT, BT_PSM_EATT,
                          0, 0);
 

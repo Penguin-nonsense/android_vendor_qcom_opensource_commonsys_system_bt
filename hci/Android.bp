@@ -72,6 +72,7 @@ cc_test {
         "libosi_qti",
         "libosi-AlarmTestHarness_qti",
         "libosi-AllocationTestHarness_qti",
+        "libbase",
         "libcutils",
         "libbtcore_qti",
         "libbt-protos_qti",

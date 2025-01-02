@@ -205,7 +205,7 @@ uint16_t GATTS_AddService(tGATT_IF gatt_if, btgatt_db_element_t* service,
   LOG(INFO) << __func__;
 
   if (!p_reg) {
-    LOG(ERROR) << "Inavlid gatt_if=" << +gatt_if;
+    LOG(ERROR) << "Invalid gatt_if=" << +gatt_if;
     return GATT_INTERNAL_ERROR;
   }
 
@@ -276,7 +276,7 @@ uint16_t GATTS_AddService(tGATT_IF gatt_if, btgatt_db_element_t* service,
 
       if (is_gatt_attr_type(uuid)) {
         LOG(ERROR) << __func__
-                   << ": attept to add characteristic with UUID equal to GATT "
+                   << ": attempt to add characteristic with UUID equal to GATT "
                       "Attribute Type "
                    << uuid;
         return GATT_INTERNAL_ERROR;
@@ -293,7 +293,7 @@ uint16_t GATTS_AddService(tGATT_IF gatt_if, btgatt_db_element_t* service,
     } else if (el->type == BTGATT_DB_DESCRIPTOR) {
       if (is_gatt_attr_type(uuid)) {
         LOG(ERROR) << __func__
-                   << ": attept to add descriptor with UUID equal to GATT "
+                   << ": attempt to add descriptor with UUID equal to GATT "
                       "Attribute Type "
                    << uuid;
         return GATT_INTERNAL_ERROR;
@@ -338,7 +338,7 @@ uint16_t GATTS_AddService(tGATT_IF gatt_if, btgatt_db_element_t* service,
   elem.type = list.asgn_range.is_primary ? GATT_UUID_PRI_SERVICE
                                          : GATT_UUID_SEC_SERVICE;
 
-  if (elem.type == GATT_UUID_PRI_SERVICE) {
+  if (elem.type == GATT_UUID_PRI_SERVICE && gatt_cb.over_br_enabled) {
     Uuid* p_uuid = gatts_get_service_uuid(elem.p_db);
     if (p_uuid && !is_uuid_le_only_transport(*p_uuid)) {
       elem.sdp_handle = gatt_add_sdp_record(*p_uuid, elem.s_hdl, elem.e_hdl);

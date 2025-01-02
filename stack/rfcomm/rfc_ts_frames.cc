@@ -41,9 +41,14 @@
  ******************************************************************************/
 void rfc_send_sabme(tRFC_MCB* p_mcb, uint8_t dlci) {
   uint8_t* p_data;
+  if (!p_mcb) return;
   uint8_t cr = RFCOMM_CR(p_mcb->is_initiator, true);
   BT_HDR* p_buf = (BT_HDR*)osi_malloc(RFCOMM_CMD_BUF_SIZE);
 
+  if (!p_buf) {
+    RFCOMM_TRACE_ERROR("%s: Fails to allocate SABME frame buffer!", __func__);
+    return;
+  }
   p_buf->offset = L2CAP_MIN_OFFSET;
   p_data = (uint8_t*)(p_buf + 1) + L2CAP_MIN_OFFSET;
 

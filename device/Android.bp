@@ -59,5 +59,6 @@ cc_test {
         "libosi-AllocationTestHarness_qti",
         "libcutils",
         "libbluetooth-types",
+        "libbase",
     ],
 }

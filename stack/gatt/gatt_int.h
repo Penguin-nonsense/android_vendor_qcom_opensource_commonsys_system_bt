@@ -561,6 +561,7 @@ typedef struct {
    * handle_cl_support_feat, as that one should be written by remote device.
    */
    uint8_t gatt_cl_supported_feat_mask;
+   bool over_br_enabled;
 } tGATT_CB;
 
 #define GATT_SIZE_OF_SRV_CHG_HNDL_RANGE 4
